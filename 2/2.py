@@ -1,5 +1,4 @@
 from collections import Counter, defaultdict
-import difflib
 import itertools
 
 with open('input.txt') as f:
@@ -12,10 +11,10 @@ for ss in [set(v for _, v in Counter(s).items() if v in [2,3]) for s in ids]:
 
 print(dd[2] * dd[3])
 
-def find_common(ids):
+def first_common(ids):
     for a, b in itertools.combinations(ids, 2):
-        diff = list(difflib.ndiff(a, b))
-        if len(diff) == len(a) + 1: # works because all ids are the same length
-            return ''.join([v[2] for v in diff if v[0] not in ['+', '-']])
+        diffs = [ch1 == ch2 for ch1, ch2 in zip(a, b)]
+        if sum(diffs) == len(a) - 1:
+            return ''.join(itertools.compress(a, diffs))
 
-print(find_common(ids))
+print(first_common(ids))

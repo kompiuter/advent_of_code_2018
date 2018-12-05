@@ -1,7 +1,7 @@
 from functools import reduce
 
 def trigger(x, y):
-    return False if not x else abs(ord(x[-1]) - ord(y)) == 32
+    return False if not x else ord(x[-1]) ^ 32 == ord(y)
 
 def react(polymer):
     return reduce((lambda x, y: x[:-1] if trigger(x, y) else x+y), polymer)

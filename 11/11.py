@@ -1,27 +1,21 @@
-from operator import itemgetter
-
-s = 18
+# https://en.wikipedia.org/wiki/Summed-area_table
+# https://www.codeproject.com/Articles/441226/Haar-feature-Object-Detection-in-Csharp#integral
+s = 1308
 grid_size = 300
-power = dict()
-for y in range(1, grid_size+1):
-    for x in range(1, grid_size+1):
-        power[(x,y)] = (((x + 10) * y) + s) * (x + 10) // 100 % 10 - 5
+get_power = lambda x, y: (((x + 10) * y) + s) * (x + 10) // 100 % 10 - 5
+integral = dict()
+for y in range(grid_size):
+    for x in range(grid_size):
+        integral[(x, y)] = get_power(x, y) + integral.get((x, y-1), 0) \
+                         + integral.get((x-1, y), 0) - integral.get((x-1, y-1), 0)
 
-square_power = dict()
-for w in range(1, 301):
-    for i in range(1, grid_size+2-w):
-        for j in range(1, grid_size+2-w):
-            if (w-1,i,j) in square_power:
-                total = square_power[(w-1,i,j)]
-                x = w - 1 + i
-                for y in range(j, j+w):
-                    total += power[(x,y)]
-                y = w - 1 + j
-                for x in range(i, i+w-1):
-                    total += power[(x,y)]
-                square_power[(w,i,j)] = total
-            else:
-                square_power[(w,i,j)] = sum(power[(x,y)] for x in range(i, i+w) for y in range(j, j+w))
+gp = dict()
+for size in range(2, grid_size):
+    for y in range(size-1, grid_size):
+        for x in range(size-1, grid_size):
+            rect_power = integral[(x, y)] - integral.get((x-size, y), 0) \
+                       - integral.get((x, y-size), 0) + integral.get((x-size, y-size), 0)
+            gp[(x-size+1, y-size+1, size)] = rect_power
 
-largest = max(square_power.items(), key=itemgetter(1))
-print(largest[0])
+print('part 1: power={}, size=3x3, x={}, y={}'.format(*max((power, x, y) for (x, y, size), power in gp.items() if size == 3)))
+print('part 2: power={0}, size={1}x{1}, x={2}, y={3}'.format(*max((power, size, x, y) for (x, y, size), power in gp.items())))
